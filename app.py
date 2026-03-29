@@ -162,8 +162,11 @@ def _safe_get(url: str, timeout: int = 20) -> dict:
 
 def load_district_geojson() -> dict:
     if GEOJSON_FILE.exists():
-        with GEOJSON_FILE.open("r", encoding="utf-8") as geojson_file:
-            return json.load(geojson_file)
+        try:
+            with GEOJSON_FILE.open("r", encoding="utf-8") as geojson_file:
+                return json.load(geojson_file)
+        except (FileNotFoundError, OSError, json.JSONDecodeError):
+            pass
     return DISTRICT_GEOJSON
 
 
@@ -1331,7 +1334,10 @@ st.caption(
     "District polygons are bundled into the app for a stable demo view. "
     "Colors represent current district risk score."
 )
-st_folium(create_choropleth(map_df), width=1100, height=520)
+try:
+    st_folium(create_choropleth(map_df), width=1100, height=520)
+except Exception:
+    st.warning("District choropleth is temporarily unavailable, but the rest of the dashboard is still working.")
 
 st.markdown("### District Intelligence Table")
 display_df = ranked_df[
