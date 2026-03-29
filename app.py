@@ -19,7 +19,8 @@ from streamlit_folium import st_folium
 
 
 BASE_URL = "https://api.openweathermap.org/data/2.5"
-DATA_DIR = Path("data")
+APP_DIR = Path(__file__).resolve().parent
+DATA_DIR = APP_DIR / "data"
 HISTORY_FILE = DATA_DIR / "weather_history.csv"
 GEOJSON_FILE = DATA_DIR / "punjab_districts.geojson"
 TELEGRAM_STATE_FILE = DATA_DIR / "telegram_alert_state.json"
