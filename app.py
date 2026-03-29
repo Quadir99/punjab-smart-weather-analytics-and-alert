@@ -732,8 +732,8 @@ st.markdown(
     <style>
     .stApp {
         background:
-            linear-gradient(180deg, rgba(248,250,252,0.78) 0%, rgba(248,250,252,0.92) 100%),
-            url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'><defs><linearGradient id='sky' x1='0' y1='0' x2='0' y2='1'><stop offset='0%25' stop-color='%23dbeafe'/><stop offset='55%25' stop-color='%23f8fafc'/><stop offset='100%25' stop-color='%23fef3c7'/></linearGradient></defs><rect width='1600' height='900' fill='url(%23sky)'/><circle cx='1260' cy='150' r='95' fill='%23fde68a' fill-opacity='0.85'/><ellipse cx='250' cy='170' rx='170' ry='55' fill='white' fill-opacity='0.75'/><ellipse cx='370' cy='150' rx='120' ry='42' fill='white' fill-opacity='0.82'/><ellipse cx='540' cy='185' rx='150' ry='50' fill='white' fill-opacity='0.68'/><path d='M0 630 C180 560 320 560 500 625 S860 700 1080 625 S1400 560 1600 630 L1600 900 L0 900 Z' fill='%23bbf7d0' fill-opacity='0.8'/><path d='M0 690 C200 620 420 640 620 700 S980 760 1240 700 S1460 650 1600 685 L1600 900 L0 900 Z' fill='%2384cc16' fill-opacity='0.32'/><path d='M0 760 C220 710 430 735 650 790 S1100 845 1600 770 L1600 900 L0 900 Z' fill='%2365a30d' fill-opacity='0.24'/><g stroke='%2394a3b8' stroke-opacity='0.18' stroke-width='2' fill='none'><path d='M118 640 l28 -22 l38 30 l44 -40 l52 26'/><path d='M1260 610 l32 -18 l34 26 l48 -36 l40 20'/></g></svg>");
+            linear-gradient(180deg, rgba(8,15,28,0.52) 0%, rgba(12,20,36,0.34) 36%, rgba(245,248,252,0.88) 100%),
+            url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 960'><defs><linearGradient id='bg' x1='0' y1='0' x2='0' y2='1'><stop offset='0%25' stop-color='%230b1220'/><stop offset='42%25' stop-color='%23172a46'/><stop offset='74%25' stop-color='%23253d4d'/><stop offset='100%25' stop-color='%235f7d46'/></linearGradient><radialGradient id='glowA' cx='25%25' cy='18%25' r='38%25'><stop offset='0%25' stop-color='%2338bdf8' stop-opacity='0.38'/><stop offset='100%25' stop-color='%2338bdf8' stop-opacity='0'/></radialGradient><radialGradient id='glowB' cx='82%25' cy='16%25' r='34%25'><stop offset='0%25' stop-color='%23f59e0b' stop-opacity='0.30'/><stop offset='100%25' stop-color='%23f59e0b' stop-opacity='0'/></radialGradient><linearGradient id='ridge1' x1='0' y1='0' x2='1' y2='0'><stop offset='0%25' stop-color='%231f5f5b'/><stop offset='100%25' stop-color='%234d7c0f'/></linearGradient><linearGradient id='ridge2' x1='0' y1='0' x2='1' y2='0'><stop offset='0%25' stop-color='%23143c3a'/><stop offset='100%25' stop-color='%23365f14'/></linearGradient></defs><rect width='1600' height='960' fill='url(%23bg)'/><rect width='1600' height='960' fill='url(%23glowA)'/><rect width='1600' height='960' fill='url(%23glowB)'/><g fill='white' fill-opacity='0.08'><circle cx='170' cy='120' r='2.4'/><circle cx='240' cy='210' r='1.6'/><circle cx='390' cy='130' r='1.9'/><circle cx='720' cy='180' r='1.7'/><circle cx='980' cy='122' r='2.1'/><circle cx='1160' cy='200' r='1.7'/><circle cx='1420' cy='150' r='2.2'/></g><path d='M0 610 C140 550 300 530 470 565 S820 660 1030 600 S1380 500 1600 560 L1600 960 L0 960 Z' fill='url(%23ridge1)' fill-opacity='0.72'/><path d='M0 700 C180 640 380 650 620 720 S1100 825 1600 710 L1600 960 L0 960 Z' fill='url(%23ridge2)' fill-opacity='0.82'/><path d='M0 805 C220 770 470 790 760 848 S1260 905 1600 820 L1600 960 L0 960 Z' fill='%2310181f' fill-opacity='0.30'/><g stroke='%23e2e8f0' stroke-opacity='0.11' stroke-width='2' fill='none'><path d='M120 688 l44 -32 l52 38 l60 -48 l62 24'/><path d='M1160 632 l52 -28 l44 34 l70 -50 l54 20'/></g></svg>");
         background-attachment: fixed;
         background-size: cover;
         background-position: center top;
@@ -742,8 +742,17 @@ st.markdown(
         background: rgba(255,255,255,0);
     }
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, rgba(255,255,255,0.88) 0%, rgba(239,246,255,0.92) 100%);
-        backdrop-filter: blur(10px);
+        background: linear-gradient(180deg, rgba(249,250,251,0.88) 0%, rgba(234,242,255,0.90) 100%);
+        border-right: 1px solid rgba(148, 163, 184, 0.18);
+        backdrop-filter: blur(14px);
+    }
+    [data-testid="stAppViewContainer"] > .main {
+        background: transparent;
+    }
+    [data-testid="stVerticalBlock"] > [style*="flex-direction: column;"] > [data-testid="stVerticalBlockBorderWrapper"] {
+        background: rgba(255,255,255,0.16);
+        border-radius: 18px;
+        backdrop-filter: blur(4px);
     }
     </style>
     """,
@@ -1331,7 +1340,7 @@ st_folium(create_map(map_df), width=1100, height=520)
 
 st.markdown("### District Choropleth")
 st.caption(
-    "District polygons are bundled into the app for a stable demo view. "
+    "District polygons are bundled into the app for a stable view. "
     "Colors represent current district risk score."
 )
 try:
