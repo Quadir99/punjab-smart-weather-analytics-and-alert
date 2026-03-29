@@ -24,6 +24,67 @@ DATA_DIR = APP_DIR / "data"
 HISTORY_FILE = DATA_DIR / "weather_history.csv"
 GEOJSON_FILE = DATA_DIR / "punjab_districts.geojson"
 TELEGRAM_STATE_FILE = DATA_DIR / "telegram_alert_state.json"
+DISTRICT_GEOJSON = {
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {"district": "Ludhiana"},
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[[75.70, 30.78], [76.02, 30.78], [76.02, 31.02], [75.70, 31.02], [75.70, 30.78]]],
+            },
+        },
+        {
+            "type": "Feature",
+            "properties": {"district": "Amritsar"},
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[[74.70, 31.50], [75.00, 31.50], [75.00, 31.76], [74.70, 31.76], [74.70, 31.50]]],
+            },
+        },
+        {
+            "type": "Feature",
+            "properties": {"district": "Bathinda"},
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[[74.78, 30.08], [75.10, 30.08], [75.10, 30.34], [74.78, 30.34], [74.78, 30.08]]],
+            },
+        },
+        {
+            "type": "Feature",
+            "properties": {"district": "Patiala"},
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[[76.18, 30.20], [76.58, 30.20], [76.58, 30.48], [76.18, 30.48], [76.18, 30.20]]],
+            },
+        },
+        {
+            "type": "Feature",
+            "properties": {"district": "Jalandhar"},
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[[75.40, 31.18], [75.74, 31.18], [75.74, 31.48], [75.40, 31.48], [75.40, 31.18]]],
+            },
+        },
+        {
+            "type": "Feature",
+            "properties": {"district": "Mansa"},
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[[75.22, 29.86], [75.58, 29.86], [75.58, 30.14], [75.22, 30.14], [75.22, 29.86]]],
+            },
+        },
+        {
+            "type": "Feature",
+            "properties": {"district": "Barnala"},
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[[75.38, 30.24], [75.72, 30.24], [75.72, 30.50], [75.38, 30.50], [75.38, 30.24]]],
+            },
+        },
+    ],
+}
 HISTORY_COLUMNS = [
     "Fetched_At",
     "City",
@@ -97,6 +158,13 @@ def _safe_get(url: str, timeout: int = 20) -> dict:
     response = requests.get(url, timeout=timeout)
     response.raise_for_status()
     return response.json()
+
+
+def load_district_geojson() -> dict:
+    if GEOJSON_FILE.exists():
+        with GEOJSON_FILE.open("r", encoding="utf-8") as geojson_file:
+            return json.load(geojson_file)
+    return DISTRICT_GEOJSON
 
 
 def fetch_current_weather(api_key: str) -> pd.DataFrame:
@@ -833,8 +901,7 @@ def create_map(df: pd.DataFrame) -> folium.Map:
 
 def create_choropleth(df: pd.DataFrame) -> folium.Map:
     district_map = folium.Map(location=[31.0, 75.7], zoom_start=7, tiles="CartoDB positron")
-    with GEOJSON_FILE.open("r", encoding="utf-8") as geojson_file:
-        geojson_data = json.load(geojson_file)
+    geojson_data = load_district_geojson()
 
     choropleth_df = df[["City", "Risk_Score", "Predicted_Risk_24h"]].copy()
     choropleth_df = choropleth_df.rename(columns={"City": "district"})
@@ -1158,18 +1225,44 @@ st.markdown("---")
 st.markdown("### District Trend Explorer")
 trend_city = st.selectbox("Choose a district for historical trend view", list(weather_df["City"]))
 trend_df = get_city_trend(history_df, trend_city)
+current_trend_row = weather_df[weather_df["City"] == trend_city].iloc[0]
 
 trend_left, trend_right = st.columns(2)
 with trend_left:
     if trend_df.empty:
-        st.info("Trend history will appear after more refresh cycles are stored.")
+        st.info("No stored trend history yet. Showing the latest live district snapshot below.")
+        snapshot_cols = st.columns(2)
+        with snapshot_cols[0]:
+            st.metric("Current Temperature", f"{current_trend_row['Temp']:.1f} C")
+            st.metric("Current Humidity", f"{current_trend_row['Humidity']:.0f}%")
+        with snapshot_cols[1]:
+            st.metric("Risk Score", f"{current_trend_row['Risk_Score']:.0f}/100")
+            st.metric("Visibility", format_visibility(current_trend_row["Visibility"]))
+    elif len(trend_df) < 2:
+        st.info("Only one historical snapshot is available so far. More points will appear after future refreshes.")
+        recent_temp_df = trend_df[["Fetched_At", "Temp", "Humidity"]].copy()
+        recent_temp_df["Fetched_At"] = recent_temp_df["Fetched_At"].dt.strftime("%Y-%m-%d %H:%M:%S")
+        st.dataframe(recent_temp_df, use_container_width=True, hide_index=True)
     else:
         temp_chart = trend_df.set_index("Fetched_At")[["Temp", "Humidity"]]
         st.line_chart(temp_chart, use_container_width=True)
 
 with trend_right:
     if trend_df.empty:
-        st.info("Visibility and risk history will populate automatically over time.")
+        st.info("Historical visibility and risk will populate after more refresh cycles are stored.")
+        snapshot_cols = st.columns(2)
+        with snapshot_cols[0]:
+            st.metric("Alert Band", str(current_trend_row["Alert_Band"]))
+            st.metric("Forecast Rain Events", f"{int(current_trend_row['Forecast_Rain_Events'])}")
+        with snapshot_cols[1]:
+            st.metric("Predicted 24h Risk", f"{current_trend_row['Predicted_Risk_24h']:.0f}/100")
+            st.metric("Yield Protection", f"{current_trend_row['Yield_Protection_Index']:.0f}/100")
+    elif len(trend_df) < 2:
+        st.info("A visual trend will appear once at least two stored snapshots exist for this district.")
+        recent_risk_df = trend_df[["Fetched_At", "Visibility", "Risk_Score"]].copy()
+        recent_risk_df["Fetched_At"] = recent_risk_df["Fetched_At"].dt.strftime("%Y-%m-%d %H:%M:%S")
+        recent_risk_df["Visibility"] = recent_risk_df["Visibility"].apply(format_visibility)
+        st.dataframe(recent_risk_df, use_container_width=True, hide_index=True)
     else:
         visibility_chart = trend_df.set_index("Fetched_At")[["Visibility", "Risk_Score"]]
         st.line_chart(visibility_chart, use_container_width=True)
@@ -1235,7 +1328,7 @@ st_folium(create_map(map_df), width=1100, height=520)
 
 st.markdown("### District Choropleth")
 st.caption(
-    "District polygons are stored locally for a stable offline demo. "
+    "District polygons are bundled into the app for a stable demo view. "
     "Colors represent current district risk score."
 )
 st_folium(create_choropleth(map_df), width=1100, height=520)
