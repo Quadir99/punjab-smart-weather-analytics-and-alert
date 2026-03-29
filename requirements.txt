@@ -1,0 +1,8 @@
+streamlit
+requests
+pandas
+python-dotenv
+streamlit-folium
+folium
+matplotlib
+reportlab
